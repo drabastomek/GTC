@@ -1,19 +1,27 @@
 from azureml.core import Workspace, Environment
 from azureml.core.conda_dependencies import CondaDependencies
 from azureml.core.compute import ComputeTarget, AmlCompute
+from azureml.core.authentication import InteractiveLoginAuthentication
 import os
 
 
 # WORKSPACE
 def get_workspace(
-    subscription_id="6560575d-fa06-4e7d-95fb-f962e74efd7a",
-    resource_group="azure-sandbox",
-    workspace_name="todrabas_UK_STH",
+    subscription_id,
+    resource_group,
+    workspace_name,
+    tenant_id
 ):
+    auth = InteractiveLoginAuthentication(
+        tenant_id = tenant_id,
+        force = True
+    )
+    
     ws = Workspace(
         workspace_name=workspace_name,
         subscription_id=subscription_id,
         resource_group=resource_group,
+        auth=auth
     )
     return ws
 
@@ -111,7 +119,7 @@ def download_and_upload_data(ws, get_data=False, years=["2016"]):
         print()
         nyc_data.upload_nyctaxi_data(
             ws,
-            ws.datastores["datafiles"],
+            ws.datastores["datafileshare"],
             os.path.join(os.getcwd(), "nyctaxi"),
             os.path.join("data", "nyctaxi"),
         )
